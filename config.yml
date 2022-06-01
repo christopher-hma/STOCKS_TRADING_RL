@@ -1,0 +1,76 @@
+DOW_11_TICKER: ["AAPL","MSFT","JPM","AMZN","GS","QCOM","TSLA","IBM","NVDA","FB","PFE"]
+
+DOW_12_TICKER: [
+          "AAPL",
+          "MSFT",
+          "JPM",
+          "V",
+          "GS",
+          "NKE",
+          "DIS",
+          "AXP",
+          "HD",
+          "INTC",
+          "WMT",
+          "IBM"
+]
+
+DOW_30_TICKER: [
+    "AXP",
+    "AMGN",
+    "AAPL",
+    "BA",
+    "CAT",
+    "CSCO",
+    "CVX",
+    "GS",
+    "HD",
+    "HON",
+    "IBM",
+    "INTC",
+    "JNJ",
+    "KO",
+    "JPM",
+    "MCD",
+    "MMM",
+    "MRK",
+    "MSFT",
+    "NKE",
+    "PG",
+    "TRV",
+    "UNH",
+    "CRM",
+    "VZ",
+    "V",
+    "WBA",
+    "WMT",
+    "DIS"
+]
+
+DOW_20_TICKER: [
+    "AXP",
+    "AMGN",
+    "AAPL",
+    "BA",
+    "CAT",
+    "CSCO",
+    "CVX",
+    "GS",
+    "HD",
+    "HON",
+    "IBM",
+    "INTC",
+    "JNJ",
+    "KO",
+    "JPM",
+    "MCD",
+    "MMM",
+    "MRK",
+    "MSFT",
+    "NKE"
+]
+
+
+TECHNICAL_INDICATORS_LIST: ['rsi_30','macd','close_50_sma','boll','cci_14']
+
+TECHNICAL_INDICATORS_LIST1: ['rsi_30']
