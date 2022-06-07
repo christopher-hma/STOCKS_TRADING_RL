@@ -70,7 +70,7 @@ class MADDPGAgent(nn.Module):
         
           self.NUM_STOCKS = num_actions       
         
-          self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech)
+          self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech,args.is_turbulence)
         
           self.replay_buffer = ReplayBuffer(state_dim,num_actions,self.num_agents)
                
@@ -524,7 +524,7 @@ class MATD3Agent(nn.Module):
         
           self.NUM_STOCKS = num_actions       
         
-          self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech)
+          self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech,args.is_turbulence)
         
           self.replay_buffer = ReplayBuffer(state_dim,num_actions,self.num_agents)
                
@@ -1024,7 +1024,7 @@ class MAPPOAgent(nn.Module):
         
         self.replay_buffer = [Trajectory() for i in range(self.num_agents)]
         
-        self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech)
+        self.env = MultiStockTradeEnvironment(num_actions,self.num_agents,df,df_eval,df_test,tech,args.is_turbulence)
         
         self.epsilon = 0.2
                 

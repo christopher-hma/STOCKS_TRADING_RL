@@ -61,6 +61,12 @@ class StockTradeEnvironment():
         self.turbulence = 0
 
         self.is_turbulence = is_turbulence
+        
+        self.systemic_risk = 0
+        
+        self.risk_trend_up = 0
+        
+        self.systemic_risk_old = 0
     
     def initial_state(self,date):
         
@@ -75,6 +81,11 @@ class StockTradeEnvironment():
          
         self.turbulence = self.df.loc[0]["turbulence_sign"].values[0]
 
+        self.systemic_risk = self.df.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0
+        
+        self.risk_trend_up = 0
         
     def eval_initial_state(self,date):
 
@@ -88,6 +99,11 @@ class StockTradeEnvironment():
         
         self.turbulence = self.df_eval.loc[0]["turbulence_sign"].values[0]
             
+        self.systemic_risk = self.df_eval.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0       
+        
+        self.risk_trend_up = 0
         
     def test_initial_state(self,date):
         
@@ -101,13 +117,20 @@ class StockTradeEnvironment():
         
         self.turbulence = self.df_test.loc[0]["turbulence_sign"].values[0]
             
-   
+        self.systemic_risk = self.df_test.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0
+        
+        self.risk_trend_up = 0
+        
+    def risk_increase(self):
+        
+        return self.risk_trend_up > 3
+        
     def sell_stock(self,sell_index,is_eval,is_test):
         
-        #if self.turbulence > self.turbulence_threshold:
-  
-        if self.is_turbulence and self.turbulence == -1:
-            
+        if (self.is_turbulence and self.turbulence == -1) or (self.risk_increase() and self.is_turbulence):
+ 
            state = self.get_state(is_eval,is_test)
         
            share_sell_quantity = state[0,1 + self.NUM_STOCKS : 1 + 2 * self.NUM_STOCKS].copy()
@@ -132,8 +155,8 @@ class StockTradeEnvironment():
         
         state = self.get_state(is_eval,is_test)
         
-        #if self.turbulence > self.turbulence_threshold:
-        if self.is_turbulence and self.turbulence == -1:        
+        if (self.is_turbulence and self.turbulence == -1) or (self.risk_increase() and self.is_turbulence):
+       
             pass
         
         else:
@@ -161,6 +184,16 @@ class StockTradeEnvironment():
  
         reward = None
 
+        if self.systemic_risk > self.systemic_risk_old: 
+        
+           self.risk_trend_up += 1
+            
+        else:
+            
+           self.risk_trend_up = 0
+        
+        self.systemic_risk_old = self.systemic_risk
+        
         self.make_transaction(actions,is_eval,is_test)
  
         self.update(t+1,is_eval,is_test)
@@ -220,6 +253,8 @@ class StockTradeEnvironment():
               state[0,1 + (i+2) * self.NUM_STOCKS: 1 + (i+3) *self.NUM_STOCKS] = df.loc[date][tech].values
             
         self.turbulence = df.loc[date]["turbulence_sign"].values[0]
+        
+        self.systemic_risk = df.loc[date]["systemic_risk"].values[0]
 
     def reset_(self):
         
@@ -314,6 +349,13 @@ class MultiStockTradeEnvironment():
         self.is_turbulence = is_turbulence
 
         self.turbulence_threshold = turbulence_threshold
+        
+        self.systemic_risk = 0
+        
+        self.risk_trend_up = 0
+        
+        self.systemic_risk_old = 0
+        
 
     def initial_state(self,date):
         
@@ -329,6 +371,12 @@ class MultiStockTradeEnvironment():
                 self.portfolio_state[agent_idx][0,1 + (i+2) * self.NUM_STOCKS: 1 + (i+3) *self.NUM_STOCKS] = self.df.loc[date][tech].values
         
         self.turbulence = self.df.loc[0]["turbulence_sign"].values[0]
+        
+        self.systemic_risk = self.df.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0
+        
+        self.risk_trend_up = 0
 
         
     def eval_initial_state(self,date):
@@ -346,6 +394,12 @@ class MultiStockTradeEnvironment():
         
         self.turbulence = self.df_eval.loc[0]["turbulence_sign"].values[0]
         
+        self.systemic_risk = self.df_eval.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0
+        
+        self.risk_trend_up = 0
+        
         
     def test_initial_state(self,date):
         
@@ -360,12 +414,21 @@ class MultiStockTradeEnvironment():
                 self.test_portfolio_state[agent_idx][0,1 + (i+2) * self.NUM_STOCKS: 1 + (i+3) *self.NUM_STOCKS] = self.df_test.loc[date][tech].values
        
         self.turbulence = self.df_test.loc[0]["turbulence_sign"].values[0]
+        
+        self.systemic_risk = self.df_test.loc[0]["systemic_risk"].values[0]
+        
+        self.systemic_risk_old = 0
+        
+        self.risk_trend_up = 0
                           
+            
+    def risk_increase(self):
+        
+        return self.risk_trend_up > 3
+    
     def sell_stock(self,sell_index,agent_idx,is_eval,is_test):
         
-        #if self.turbulence > self.turbulence_threshold:
-
-        if self.is_turbulence and self.turbulence == -1:
+        if (self.is_turbulence and self.turbulence == -1) or (self.risk_increase() and self.is_turbulence):
             
             state = self.get_state(agent_idx,is_eval,is_test)
             
@@ -387,8 +450,7 @@ class MultiStockTradeEnvironment():
 
     def buy_stock(self,buy_index,agent_idx,is_eval,is_test):
         
-        #if self.turbulence > self.turbulence_threshold:
-        if self.is_turbulence and self.turbulence == -1:
+        if (self.is_turbulence and self.turbulence == -1) or (self.risk_increase() and self.is_turbulence):
                 
             pass
        
@@ -418,7 +480,17 @@ class MultiStockTradeEnvironment():
         dones = []
         
         rewards = []
-
+        
+        if self.systemic_risk > self.systemic_risk_old:
+        
+           self.risk_trend_up += 1
+            
+        else:
+            
+           self.risk_trend_up = 0
+        
+        self.systemic_risk_old = self.systemic_risk
+        
         for agent_idx in range(len(action_list)):
             
             actions = action_list[agent_idx]
@@ -446,13 +518,16 @@ class MultiStockTradeEnvironment():
                 next_obs.append(next_state)
         
             self.turbulence = df.loc[t+1]["turbulence_sign"].values[0]
-
+ 
+            self.systemic_risk = df.loc[t+1]["systemic_risk"].values[0]
 
         else:
 
             next_obs = self.reset_()
 
             self.turbulence = df.loc[0]["turbulence_sign"].values[0]
+            
+            self.systemic_risk = df.loc[0]["systemic_risk"].values[0]
 
         next_time = 0 if t == T - 2 else t+1 
     

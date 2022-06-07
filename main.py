@@ -170,31 +170,31 @@ if __name__ == "__main__":
    )
    parser.add_argument(
       
-       "--START_TRADE_DATE", default = "2020-06-30", type=str, help =""
+       "--START_TRADE_DATE", default = "2021-01-01", type=str, help =""
       
    )
    parser.add_argument(
       
-       "--END_TRADE_DATE", default = "2021-07-01", type=str, help =""
+       "--END_TRADE_DATE", default = "2022-01-01", type=str, help =""
        
    )
    
    parser.add_argument(
      
 
-       "--START_TEST_DATE", default = "2021-07-01", type=str, help =""
+       "--START_TEST_DATE", default = "2022-01-01", type=str, help =""
 
    )
     
    parser.add_argument(
       
-       "--END_TEST_DATE", default = "2022-01-01", type=str, help =""
+       "--END_TEST_DATE", default = "2022-06-01", type=str, help =""
 
    )
 
    parser.add_argument(
       
-       "--agent", default = "td3", type=str, help =""
+       "--agent", default = "ddpg", type=str, help =""
    )
   
    parser.add_argument(
@@ -217,7 +217,7 @@ if __name__ == "__main__":
    
    parser.add_argument(
       
-       "--is_turbulence", default = False, type=str, help ="whether to use turbulence index for early selloff during bearish market"
+       "--is_turbulence", default = False, type=str, help ="whether to use turbulence index and systemic risk for early selloff during bearish market"
 
    )
  
@@ -253,6 +253,10 @@ if __name__ == "__main__":
    feature = Feature_Engineering(tech_indicators)
 
    processed = feature.preprocess(df)   
+
+   processed = feature.calculate_systemic_risk(processed)
+
+   print(processed)
 
    list_ticker = processed["tic"].unique().tolist()
 

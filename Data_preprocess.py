@@ -11,6 +11,8 @@ from scipy.spatial import distance
 import linalg
 from numpy.linalg import pinv
 
+from matplotlib import pyplot as plt
+
 class DataDownloader:
     
     def __init__(self, start_date: str, end_date: str, stock_list: list):
@@ -132,7 +134,54 @@ class Feature_Engineering:
         
         return(smoothed_values)
 
+    def gini(self, values):
+        
+        values = list(values)
+        values.sort()
+        
+        minimum_value = values[0]
+        lorenz_curve_value = minimum_value
+        average_input = sum(values)/len(values)
+        line_of_equality = [average_input]
+        gap_area = [line_of_equality[0] - lorenz_curve_value]
+        
+        for index in range(1, len(values)):
+            lorenz_curve_value += values[index]
+            line_of_equality.append(line_of_equality[index - 1] + average_input)
+            gap_area.append(line_of_equality[index - 1] + average_input
+                            - lorenz_curve_value)
+        
+        return(sum(gap_area)/sum(line_of_equality))
+    
+    
+    def calculate_systemic_risk(self,df):
+        
+        dates = df.date.unique()        
+        df1 = df.copy()
+        df_pivot = df1.pivot(index="date", columns="tic", values="close")        
+        systemic_risk = [0] * 250       
+        start = 250
+        i = start
+        while i < len(dates):
 
+            cov_matrix = df_pivot.iloc[i - 250 : i + 1].cov()
+            eigenvalues = np.sort(np.linalg.eig(cov_matrix)[0])
+            systemic_risk.append(self.gini(values=eigenvalues))
+            i += 1
+
+
+        systemic_risk = pd.DataFrame(
+            {"date": df_pivot.index, "systemic_risk": systemic_risk}
+        )
+
+        df = df.merge(systemic_risk, on="date")
+
+        df = df.sort_values(["date", "tic"]).reset_index(drop=True)    
+
+        print(df)
+            
+        return df
+    
     def add_technical_indicator(self, data):
         """
         calculate technical indicators
@@ -178,8 +227,6 @@ class Feature_Engineering:
         
         df = df.sort_values(by=['date','tic'])
         
-        print(df)
-
         df1 = df.copy()
     
         dates = df1.date.unique()
@@ -193,8 +240,7 @@ class Feature_Engineering:
         turbulence_index = [0] * 250
 
         turbulence_sign = list()
-
-        print(df_pivot)
+ 
 
         for i in range(start,len(dates)):
 
@@ -213,9 +259,6 @@ class Feature_Engineering:
         
              i += 1
 
-
-        print(turbulence_index[-25:])
-
         for i in range(250):
 
             turbulence_sign.append(1)
@@ -225,11 +268,14 @@ class Feature_Engineering:
            
             ratio = (turbulence_index[i] - turbulence_index[i - 15])/turbulence_index[i - 15]
 
-            if ratio >= 0.35:
+
+            if abs(ratio) >= 0.33:
+
+               print(dates[i],turbulence_index[i],turbulence_index[i - 15])
 
                turbulence_sign.append(-1)
 
-               print(dates[i],turbulence_index[i],turbulence_index[i - 15])
+               #print(dates[i],turbulence_index[i],turbulence_index[i - 15])
 
             else:
 
@@ -254,5 +300,5 @@ class Feature_Engineering:
         df = df.merge(turbulence_index, on="date")
         
         df = df.sort_values(["date", "tic"]).reset_index(drop=True)
-    
+
         return df
